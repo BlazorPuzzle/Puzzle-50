@@ -1,0 +1,43 @@
+﻿@page "/"
+@inject IJSRuntime JS
+
+<HeadContent>
+    <script>
+        function getClientTimezoneOffset() {
+            // Returns the time zone offset in minutes (e.g., -300 for EST)
+            return new Date().getTimezoneOffset();
+        }
+    </script>
+</HeadContent>
+
+<p>
+    This is a .NET 8 Blazor Web App with Global Server Interactivity
+</p>
+<p>
+    Clicking the button below should calculate the time difference between the server and your local time.
+</p>
+<p>
+    However, it doesn't seem to work. Can you fix it?
+</p>
+
+<button @onclick="CalculateTimeDifference">Calculate Time Difference</button>
+
+<p>Server Time: @ServerTime</p>
+<p>Your Time (Based on Local Time Zone Offset): @LocalTime</p>
+
+@code {
+    private DateTime ServerTime = DateTime.MinValue;
+    private DateTime LocalTime = DateTime.MinValue;
+
+    private void CalculateTimeDifference()
+    {
+        // Step 1: Get the server's current time
+        ServerTime = DateTime.UtcNow;
+
+        // Step 2: Get the client's local time zone offset via JavaScript
+        var task = JS.InvokeAsync<int>("getClientTimezoneOffset");
+
+        // Step 3: Use the result to calculate the user's local time
+        LocalTime = ServerTime.AddMinutes(-task.Result);
+    }
+}
